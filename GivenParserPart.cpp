@@ -114,8 +114,6 @@ bool Prog(istream& in, int& line){
         return false;
     }
     //How to handle optional stmts
-    bool optionalStmt = false;
-
     bool stmt = Stmt(in, line);
     if(!stmt){
         ParseError(line, "Program syntax error, missing statment.");
@@ -143,7 +141,40 @@ bool Prog(istream& in, int& line){
 bool Decl(istream& in, int& line){
 	return true;
 }
+//Type ::= INTEGER | REAL | CHARARACTER [(LEN = ICONST)]
 bool Type(istream& in, int& line){
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t != INTEGER | t != REAL | t != CHARACTER){
+		ParseError(line, "Type syntax error, missing INTEGER/REAL/CHARACTER token.");
+		return false;
+	}
+	t = Parser::GetNextToken(in, line);
+	if(t == LPAREN){
+		t = Parser::GetNextToken(in, line);
+		if(t != LEN){
+			ParseError(line, "Type syntax error, missing LEN token.");
+			return false;
+		}
+		t = Parser::GetNextToken(in, line);
+		if(t != ASSOP){
+			ParseError(line, "Type syntax error, missing ASSOP token.");
+			return false;
+		}
+		t = Parser::GetNextToken(in, line);
+		if(t != ICONST){
+			ParseError(line, "Type syntax error, missing ICONST token.");
+			return false;
+		}
+		t = Parser::GetNextToken(in, line);
+		if(t != RPAREN){
+			ParseError(line, "Type syntax error, missing RPAREN token.");
+			return false;
+		}
+	}
+	else{
+		Parser::PushBackToken(t);
+	}
 	return true;
 }
 bool VarList(istream& in, int& line){
@@ -165,7 +196,14 @@ bool SimpleIfStmt(istream& in, int& line){
 bool AssignStmt(istream& in, int& line){
 	return true;
 }
+//Var ::= IDENT
 bool Var(istream& in, int& line){
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t != IDENT){
+		ParseError(line, "Var syntax error, missing IDENT token.");
+		return false;
+	}
 	return true;
 }
 //bool ExprList(istream& in, int& line);
@@ -181,10 +219,25 @@ bool MultExpr(istream& in, int& line){
 bool TermExpr(istream& in, int& line){
 	return true;
 }
+//SFactor ::= [+ | -] Factor
 bool SFactor(istream& in, int& line){
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t == PLUS | t == MINUS){
+		t = Parser::GetNextToken(in, line);
+	}
+	else{
+		Parser::PushBackToken(t);
+	}
+	bool factor = Factor(in, line, 0);
+	if(!factor){
+		ParseError(line, "SFactor syntax error, missing factor.");
+		return false;
+	}
 	return true;
 }
 bool Factor(istream& in, int& line, int sign){
+
 	return true;
 }
 //int ErrCount();
