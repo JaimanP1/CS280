@@ -231,7 +231,24 @@ bool BlockIfStmt(istream& in, int& line){
 bool SimpleIfStmt(istream& in, int& line){
 	return true;
 }
+//AssignStmt ::= Var = Expr
 bool AssignStmt(istream& in, int& line){
+	bool var = Var(in, line);
+	if(!var){
+		ParseError(line, "AssignStmt syntax error, Var is false.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t != ASSOP){
+		ParseError(line, "AssignStmt syntax error, missing ASSOP token.");
+		return false;
+	}
+	bool expr = Expr(in, line);
+	if(!expr){
+		ParseError(line, "AssignStmt syntax error, Expr is false.");
+		return false;
+	}
 	return true;
 }
 //Var ::= IDENT
