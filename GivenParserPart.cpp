@@ -248,7 +248,21 @@ bool Var(istream& in, int& line){
 bool RelExpr(istream& in, int& line){
 	return true;
 }
+//Expr ::= MultExpr { ( + | - | // ) MultExpr }
 bool Expr(istream& in, int& line){
+	bool multexpr = MultExpr(in, line);
+	if(!multexpr){
+		ParseError(line, "Expr syntax error, MultExpr is false.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t == PLUS || t == MINUS || t == CAT){
+		return Expr(in, line);
+	}
+	else{
+		Parser::PushBackToken(t);
+	}
 	return true;
 }
 bool MultExpr(istream& in, int& line){
