@@ -158,8 +158,9 @@ bool Decl(istream& in, int& line){
 bool Type(istream& in, int& line){
 	LexItem t;
 	t = Parser::GetNextToken(in, line);
-	if(t != INTEGER | t != REAL | t != CHARACTER){
+	if(t != INTEGER && t != REAL && t != CHARACTER){
 		ParseError(line, "Type syntax error, missing INTEGER/REAL/CHARACTER token.");
+		cout << t << endl;
 		return false;
 	}
 	t = Parser::GetNextToken(in, line);
