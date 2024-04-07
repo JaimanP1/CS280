@@ -119,7 +119,7 @@ bool Prog(istream& in, int& line){
         ParseError(line, "Program syntax error, missing statment.");
         return false;
     }
-    while(t != END){
+	while(t != END){
         t = Parser::GetNextToken(in, line);
     }
     t = Parser::GetNextToken(in, line);
@@ -265,7 +265,21 @@ bool Expr(istream& in, int& line){
 	}
 	return true;
 }
+//MultExpr ::= TermExpr { ( * | / ) TermExpr }
 bool MultExpr(istream& in, int& line){
+	bool termexpr = TermExpr(in, line);
+	if(!termexpr){
+		ParseError(line, "MultExpr syntax error, TermExpr is false.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t == MULT || t == DIV){
+		return MultExpr(in, line);
+	}
+	else{
+		Parser::PushBackToken(t);
+	}
 	return true;
 }
 //TermExpr ::= SFactor { ** SFactor }
