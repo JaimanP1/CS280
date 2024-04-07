@@ -134,7 +134,24 @@ bool Prog(istream& in, int& line){
     }
     return true;
 }
+//Decl ::= Type :: VarList
 bool Decl(istream& in, int& line){
+	bool type = Type(in, line);
+	if(!type){
+		ParseError(line, "Decl syntax error, Type is false.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t != DCOLON){
+		ParseError(line, "Decl syntax error, missing DCOLON token.");
+		return false;
+	}
+	bool varList = VarList(in, line);
+	if(!VarList){
+		ParseError(line, "Decl syntax error, VarList is false.");
+		return false;
+	}
 	return true;
 }
 //Type ::= INTEGER | REAL | CHARARACTER [(LEN = ICONST)]
