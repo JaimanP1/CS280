@@ -114,8 +114,6 @@ bool Prog(istream& in, int& line){
         return false;
     }
     //How to handle optional stmts
-    bool optionalStmt = false;
-
     bool stmt = Stmt(in, line);
     if(!stmt){
         ParseError(line, "Program syntax error, missing statment.");
@@ -165,7 +163,14 @@ bool SimpleIfStmt(istream& in, int& line){
 bool AssignStmt(istream& in, int& line){
 	return true;
 }
+//Var ::= IDENT
 bool Var(istream& in, int& line){
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t != IDENT){
+		ParseError(line, "Var syntax error, missing IDENT token.");
+		return false;
+	}
 	return true;
 }
 //bool ExprList(istream& in, int& line);
