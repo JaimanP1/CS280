@@ -121,10 +121,6 @@ bool Prog(istream& in, int& line){
     }
     while(t != END){
         t = Parser::GetNextToken(in, line);
-        if( t == PROGRAM){
-            ParseError(line, "Program syntax error, missing END token.");
-            return false;
-        }
     }
     t = Parser::GetNextToken(in, line);
     if(t != PROGRAM){
