@@ -212,7 +212,27 @@ bool Expr(istream& in, int& line){
 bool MultExpr(istream& in, int& line){
 	return true;
 }
+//TermExpr ::= SFactor { ** SFactor }
 bool TermExpr(istream& in, int& line){
+	bool sfactor = SFactor(in, line);
+	if(!sfactor){
+		ParseError(line, "TermExpr syntax error, no SFactor.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t == POW){
+		t = Parser::GetNextToken(in, line);
+		sfactor = SFactor(in, line);
+		if(!sfactor){
+			ParseError(line, "TermExpr syntax error, no (second) SFactor.");
+			return false;
+		}
+		return true;
+	}
+	else{
+		Parser::PushBackToken(t);
+	}
 	return true;
 }
 //SFactor ::= [+ | -] Factor
