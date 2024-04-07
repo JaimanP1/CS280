@@ -200,15 +200,21 @@ bool VarList(istream& in, int& line){
 	}
 	LexItem t;
 	t = Parser::GetNextToken(in, line);
+	if(t == ASSOP){
+		bool expr = Expr(in, line);
+		if(!expr){
+			ParseError(line, "VarList syntax error, Expr is false.");
+			return false;
+		}
+		t = Parser::GetNextToken(in, line);
+	}
 	while(t == COMMA){
-		cout << t << endl;
 		bool varlist = VarList(in, line);
 		t = Parser::GetNextToken(in, line);
 		if(!varlist){
 			ParseError(line, "VarList syntax error, VarList is false.");
 			return false;
 		}
-		//cout << t << endl;
 	}
 	return true;
 }
