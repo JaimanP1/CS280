@@ -221,13 +221,21 @@ bool VarList(istream& in, int& line){
 bool Stmt(istream& in, int& line){
 	return true;
 }
+//SimpleStmt ::= AssignStmt | PrintStmt
 bool SimpleStmt(istream& in, int& line){
+	bool assignstmt = AssignStmt(in, line);
+	bool printstmt = PrintStmt(in, line);
+	if(!assignstmt || !printstmt){
+		ParseError(line, "SimpleStmt syntax error, AssignStmt/PrintStmt is false.");
+		return false;
+	}
 	return true;
 }
 //bool PrintStmt(istream& in, int& line);
 bool BlockIfStmt(istream& in, int& line){
 	return true;
 }
+//SimpleStmt ::= AssignStmt | PrintStmt
 bool SimpleIfStmt(istream& in, int& line){
 	return true;
 }
