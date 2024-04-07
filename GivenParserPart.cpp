@@ -245,7 +245,25 @@ bool Var(istream& in, int& line){
 	return true;
 }
 //bool ExprList(istream& in, int& line);
+//RelExpr ::= Expr [ ( == | < | > ) Expr ]
 bool RelExpr(istream& in, int& line){
+	bool expr = Expr(in, line);
+	if(!expr){
+		ParseError(line, "RelExpr syntax error, Expr is false.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t == EQ || t == GTHAN || t == LTHAN){
+		expr = Expr(in, line);
+		if(!expr){
+			ParseError(line, "RelExpr syntax error, (second) Expr is false");
+			return false;
+		}
+	}
+	else{
+		Parser::PushBackToken(t);
+	}
 	return true;
 }
 //Expr ::= MultExpr { ( + | - | // ) MultExpr }
