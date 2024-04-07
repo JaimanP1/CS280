@@ -108,30 +108,30 @@ bool Prog(istream& in, int& line){
         ParseError(line, "Program syntax error, missing IDENT token.");
         return false;
     }
-    bool decl = Decl(in, line);
-    if(!decl){
-        ParseError(line, "Program syntax error, missing declaration.");
-        return false;
-    }
-    //How to handle optional stmts
-    bool stmt = Stmt(in, line);
-    if(!stmt){
-        ParseError(line, "Program syntax error, missing statment.");
-        return false;
-    }
-	while(t != END){
-        t = Parser::GetNextToken(in, line);
-    }
-    t = Parser::GetNextToken(in, line);
-    if(t != PROGRAM){
-        ParseError(line, "Program syntax error, missing (final) PROGRAM token.");
-        return false;
-    }
-    t = Parser::GetNextToken(in, line);
-    if(t != IDENT){
-        ParseError(line, "Program syntax error, missing (final) IDENT token.");
-        return false;
-    }
+	bool decl = Decl(in, line);
+	if(!decl){
+		ParseError(line, "Program syntax error, Decl is false.");
+		return false;
+	}
+    while(t != END){
+		bool stmt = Stmt(in, line);
+		if(!stmt){
+			ParseError(line, "Program syntax error, Stmt is false.");
+			return false;
+		}
+		t = Parser::GetNextToken(in, line);
+	}
+	t = Parser::GetNextToken(in, line);
+	if(t != PROGRAM){
+		ParseError(line, "Program syntax error, missing (second) PROGRAM token.");
+		return false;
+	}
+	t = Parser::GetNextToken(in, line);
+	if(t != IDENT){
+		ParseError(line, "Program syntax error, missing IDENT token.");
+		return false;
+	}
+	cout << "(DONE)" << endl;
     return true;
 }
 //Decl ::= Type :: VarList
@@ -147,8 +147,8 @@ bool Decl(istream& in, int& line){
 		ParseError(line, "Decl syntax error, missing DCOLON token.");
 		return false;
 	}
-	bool varList = VarList(in, line);
-	if(!VarList){
+	bool varlist = VarList(in, line);
+	if(!varlist){
 		ParseError(line, "Decl syntax error, VarList is false.");
 		return false;
 	}
@@ -208,13 +208,13 @@ bool VarList(istream& in, int& line){
 		}
 		t = Parser::GetNextToken(in, line);
 	}
-	while(t == COMMA){
+	if(t == COMMA){
 		bool varlist = VarList(in, line);
-		t = Parser::GetNextToken(in, line);
 		if(!varlist){
 			ParseError(line, "VarList syntax error, VarList is false.");
 			return false;
 		}
+		//return true;
 	}
 	return true;
 }
