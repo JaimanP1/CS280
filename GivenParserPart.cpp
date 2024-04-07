@@ -119,7 +119,7 @@ bool Prog(istream& in, int& line){
         ParseError(line, "Program syntax error, missing statment.");
         return false;
     }
-    while(t != END){
+	while(t != END){
         t = Parser::GetNextToken(in, line);
     }
     t = Parser::GetNextToken(in, line);
@@ -134,15 +134,33 @@ bool Prog(istream& in, int& line){
     }
     return true;
 }
+//Decl ::= Type :: VarList
 bool Decl(istream& in, int& line){
+	bool type = Type(in, line);
+	if(!type){
+		ParseError(line, "Decl syntax error, Type is false.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t != DCOLON){
+		ParseError(line, "Decl syntax error, missing DCOLON token.");
+		return false;
+	}
+	bool varList = VarList(in, line);
+	if(!VarList){
+		ParseError(line, "Decl syntax error, VarList is false.");
+		return false;
+	}
 	return true;
 }
 //Type ::= INTEGER | REAL | CHARARACTER [(LEN = ICONST)]
 bool Type(istream& in, int& line){
 	LexItem t;
 	t = Parser::GetNextToken(in, line);
-	if(t != INTEGER | t != REAL | t != CHARACTER){
+	if(t != INTEGER && t != REAL && t != CHARACTER){
 		ParseError(line, "Type syntax error, missing INTEGER/REAL/CHARACTER token.");
+		cout << t << endl;
 		return false;
 	}
 	t = Parser::GetNextToken(in, line);
@@ -173,7 +191,31 @@ bool Type(istream& in, int& line){
 	}
 	return true;
 }
+//VarList ::= Var [= Expr] {, Var [= Expr]}
 bool VarList(istream& in, int& line){
+	bool var = Var(in, line);
+	if(!var){
+		ParseError(line, "VarList syntax error, Var is false.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t == ASSOP){
+		bool expr = Expr(in, line);
+		if(!expr){
+			ParseError(line, "VarList syntax error, Expr is false.");
+			return false;
+		}
+		t = Parser::GetNextToken(in, line);
+	}
+	while(t == COMMA){
+		bool varlist = VarList(in, line);
+		t = Parser::GetNextToken(in, line);
+		if(!varlist){
+			ParseError(line, "VarList syntax error, VarList is false.");
+			return false;
+		}
+	}
 	return true;
 }
 bool Stmt(istream& in, int& line){
@@ -206,10 +248,38 @@ bool Var(istream& in, int& line){
 bool RelExpr(istream& in, int& line){
 	return true;
 }
+//Expr ::= MultExpr { ( + | - | // ) MultExpr }
 bool Expr(istream& in, int& line){
+	bool multexpr = MultExpr(in, line);
+	if(!multexpr){
+		ParseError(line, "Expr syntax error, MultExpr is false.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t == PLUS || t == MINUS || t == CAT){
+		return Expr(in, line);
+	}
+	else{
+		Parser::PushBackToken(t);
+	}
 	return true;
 }
+//MultExpr ::= TermExpr { ( * | / ) TermExpr }
 bool MultExpr(istream& in, int& line){
+	bool termexpr = TermExpr(in, line);
+	if(!termexpr){
+		ParseError(line, "MultExpr syntax error, TermExpr is false.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t == MULT || t == DIV){
+		return MultExpr(in, line);
+	}
+	else{
+		Parser::PushBackToken(t);
+	}
 	return true;
 }
 //TermExpr ::= SFactor { ** SFactor }
