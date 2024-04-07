@@ -1,0 +1,62 @@
+//Prog:= PROGRAM IDENT {Decl} {Stmt} END PROGRAM IDENT
+bool Prog(istream& in, int& line) {
+    LexItem tok = Parser::GetNextToken(in,line);
+    if(tok!=PROGRAM){
+        ParseError(line,"Missing PROGRAM token");
+        return false;
+    }
+
+    tok = Parser::GetNextToken(in,line);
+    if(tok!=IDENT){
+        ParseError(line,"Missing IDENT after PROGRAM");
+        return false;
+    }
+    
+    tok = Parser::GetNextToken(in, line);
+    bool status;
+
+    while (tok == INTEGER || tok == REAL || tok == CHARACTER) {
+        Parser::PushBackToken(tok);
+        status = Decl(in, line);
+        if(!status){
+            ParseError(line, "Error in declaration");
+            return false;
+        }
+        tok = Parser::GetNextToken(in,line);
+    }
+
+    while (tok != END ) {
+        Parser::PushBackToken(tok);
+
+        if(tok.GetToken() == ERR){
+            ParseError(line, "Unrecognized Input Pattern");
+            cout << "(" << tok.GetLexeme() << ")" << endl;
+            return false;
+        }
+        
+        
+        status = Stmt(in,line);
+        if(!status){
+            ParseError(line,"Error in statement (prog)");
+            return false;
+        }
+
+        tok = Parser::GetNextToken(in, line);
+    }
+
+    tok = Parser::GetNextToken(in, line);
+    if (tok != PROGRAM) {
+        ParseError(line, "Missing PROGRAM");
+        return false;
+    }
+
+    tok = Parser::GetNextToken(in, line);
+    if (tok != IDENT) {
+        ParseError(line, "Missing IDENT after END PROGRAM");
+        return false;
+    }
+
+    cout << "(DONE)" << endl;
+
+    return true;
+}

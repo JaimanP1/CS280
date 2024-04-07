@@ -322,8 +322,21 @@ bool SFactor(istream& in, int& line){
 	}
 	return true;
 }
+//Factor ::= IDENT | ICONST | RCONST | SCONST | (Expr)
 bool Factor(istream& in, int& line, int sign){
-
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t == IDENT || t == ICONST || t == RCONST || t == SCONST){
+		return true;
+	}
+	bool expr = Expr(in, line);
+	if(expr){
+		return true;
+	}
+	else{
+		ParseError(line, "Factor syntax error, missing IDENT/ICONST/RCONST/SCONST token or Expr is false.");
+		return false;
+	}
 	return true;
 }
 //int ErrCount();
