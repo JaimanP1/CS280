@@ -191,7 +191,20 @@ bool Type(istream& in, int& line){
 	}
 	return true;
 }
+//VarList ::= Var [= Expr] {, Var [= Expr]}
 bool VarList(istream& in, int& line){
+	bool var = Var(in, line);
+	if(!var){
+		ParseError(line, "VarList syntax error, Var is false.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	while(t == COMMA){
+		return VarList;
+		t = Parser::GetNextToken(in, line);
+		cout << t << endl;
+	}
 	return true;
 }
 bool Stmt(istream& in, int& line){
