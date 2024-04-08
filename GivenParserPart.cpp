@@ -251,13 +251,15 @@ bool Stmt(istream& in, int& line){
 	t = Parser::GetNextToken(in, line);
 	cout << t << line << "stmt method" << endl;
 	if(t == IDENT){
-		Parser::PushBackToken(t);
+		Parser::PushBackToken(t); 
+		cout << t << line << "thing being passed into assignstmt" << endl;
 		bool assignstmt = AssignStmt(in, line);
 		if(!assignstmt){
 			ParseError(line, "Stmt syntax error, AssignStmt is false.");
 			return false;
 		}
 		cout << "AssignStmt successfully called." << endl;
+		return true;
 	}
 	if(t == IF){
 		cout << "SimpleIfStmt called." << endl;
