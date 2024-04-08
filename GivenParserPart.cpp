@@ -113,6 +113,8 @@ bool Prog(istream& in, int& line){
 		ParseError(line, "Program syntax error, Decl is false.");
 		return false;
 	}
+	t = Parser::GetNextToken(in, line); /////////////////////maybe this fixes stmt????
+	cout << t << endl;
     while(t != END){
 		bool stmt = Stmt(in, line);
 		if(!stmt){
@@ -218,7 +220,18 @@ bool VarList(istream& in, int& line){
 	}
 	return true;
 }
+//Stmt ::= AssigStmt | BlockIfStmt | PrintStmt | SimpleIfStmt
 bool Stmt(istream& in, int& line){
+	
+	bool assignstmt = AssignStmt(in, line);
+	bool blockifstmt = BlockIfStmt(in, line);
+	bool printstmt = PrintStmt(in, line);
+	bool simpleifstmt = SimpleIfStmt(in, line);
+	if(!assignstmt && !blockifstmt && !printstmt && !simpleifstmt){
+		ParseError(line, "Stmt syntax error, AssignStmt/BlockIfStmt/PrintStmt/SimpleIfStmt is false.");
+		return false;
+	}
+	
 	return true;
 }
 //SimpleStmt ::= AssignStmt | PrintStmt
@@ -231,12 +244,26 @@ bool SimpleStmt(istream& in, int& line){
 	}
 	return true;
 }
+//PrintStmt ::= PRINT *, ExprList
 //bool PrintStmt(istream& in, int& line);
+
 bool BlockIfStmt(istream& in, int& line){
-	return true;
+	
+	return false;
 }
-//SimpleStmt ::= AssignStmt | PrintStmt
+//SimpleIfStmt ::= IF (RelExpr) SimpleStmt
 bool SimpleIfStmt(istream& in, int& line){
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	if(t != IF){
+		ParseError(line, "SimpleIfStmt syntax error, missing IF token.");
+		return false;
+	}
+	bool simplstmt = SimpleStmt(in, line);
+	if(!simplstmt){
+		ParseError(line, "SimpleIfStmt syntax error, simplstmt is false.");
+		return false;
+	}
 	return true;
 }
 //AssignStmt ::= Var = Expr
@@ -269,6 +296,7 @@ bool Var(istream& in, int& line){
 	}
 	return true;
 }
+//ExprList ::= Expr {, Expr}
 //bool ExprList(istream& in, int& line);
 //RelExpr ::= Expr [ ( == | < | > ) Expr ]
 bool RelExpr(istream& in, int& line){
