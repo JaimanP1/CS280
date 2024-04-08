@@ -126,6 +126,7 @@ bool Prog(istream& in, int& line){
 			return false;
 		}
 		Parser::PushBackToken(t);
+		cout << t << "first part of stmt while call in prog" << endl;
 		bool stmt = Stmt(in, line);
 		if(!stmt){
 			ParseError(line, "Program syntax error, Stmt is false.");
@@ -207,6 +208,7 @@ bool Type(istream& in, int& line){
 }
 //VarList ::= Var [= Expr] {, Var [= Expr]}
 bool VarList(istream& in, int& line){
+	int lineIndex = line;
 	bool var = Var(in, line);
 	if(!var){
 		ParseError(line, "VarList syntax error, Var is false.");
@@ -231,23 +233,48 @@ bool VarList(istream& in, int& line){
 		}
 		return true;   /////////////do I need this return statement??
 	}
-	if(t == IDENT){
+	if(t == IDENT && t.GetLinenum() == lineIndex){
 		ParseError(line, "VarList syntax error, missing COMMA token.");
 		return false;
 	}
-	
 	else{
-		Parser::PushBackToken(t); /////////////////////////////////////////PLEASE DEAR GOD
+		Parser::PushBackToken(t);
 	}
-	
-
+	//cout << t << line << "VarList test" << endl;
+	//Parser::PushBackToken(t); /////////////////////////////////////////PLEASE DEAR GOD
+	//cout << t << line << "VarList end" << endl;
 	return true;
 }
+//Stmt ::= AssigStmt | BlockIfStmt | PrintStmt | SimpleIfStmt
 bool Stmt(istream& in, int& line){
 	LexItem t;
 	t = Parser::GetNextToken(in, line);
-	cout << t << line << "stmt method";
-	return true;
+	cout << t << line << "stmt method" << endl;
+	if(t == IDENT){
+		Parser::PushBackToken(t);
+		bool assignstmt = AssignStmt(in, line);
+		if(!assignstmt){
+			ParseError(line, "Stmt syntax error, AssignStmt is false.");
+			return false;
+		}
+		cout << "AssignStmt successfully called." << endl;
+	}
+	if(t == IF){
+		cout << "SimpleIfStmt called." << endl;
+		return true;
+	}
+	if(t == LPAREN){
+		cout << "BlockIfStmt called." << endl;
+		return true;
+	}
+	if(t == PRINT){
+		cout << "PrintStmt called." << endl;
+		return true;
+	}
+	else{
+		ParseError(line, "Stmt syntax error, AssignStmt/BlockIfStmt/SimpleIfStmt/PrintStmt is false.");
+		return false;
+	}
 }
 bool SimpleStmt(istream& in, int& line){
 	return true;
@@ -259,7 +286,25 @@ bool BlockIfStmt(istream& in, int& line){
 bool SimpleIfStmt(istream& in, int& line){
 	return true;
 }
+//AssignStmt ::= Var = Expr
 bool AssignStmt(istream& in, int& line){
+	bool var = Var(in, line);
+	if(!var){
+		ParseError(line, "AssignStmt syntax error, Var is false.");
+		return false;
+	}
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	cout << t << line << "assignstmt method" << endl;
+	if(t != ASSOP){
+		ParseError(line, "AssignStmt syntax error, missing ASSOP token.");
+		return false;
+	}
+	bool expr = Expr(in, line);
+	if(!expr){
+		ParseError(line, "AssignStmt syntax error, Expr is false.");
+		return false;
+	}
 	return true;
 }
 //Var ::= IDENT
