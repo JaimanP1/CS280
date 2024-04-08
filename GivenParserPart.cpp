@@ -108,18 +108,31 @@ bool Prog(istream& in, int& line){
         ParseError(line, "Program syntax error, missing IDENT token.");
         return false;
     }
-	bool decl = Decl(in, line);
-	if(!decl){
-		ParseError(line, "Program syntax error, Decl is false.");
-		return false;
+	t = Parser::GetNextToken(in, line);
+	while(t.GetToken() == INTEGER || t.GetToken() == REAL || t.GetToken() == CHARACTER){
+		Parser::PushBackToken(t);
+		cout << t << line << "first part of decl while call in prog" << endl;	
+		bool decl = Decl(in, line);
+		if(!decl){
+			ParseError(line, "Program syntax error, Decl is false.");
+			return false;
+		}
+		t = Parser::GetNextToken(in, line); ////////checkpoint to see if decl are calling
+		cout << t << line << "second part of decl while call in prog" << endl;
 	}
     while(t != END){
+		if(t == PROGRAM){
+			ParseError(line, "Program syntax error, missing END token.");
+			return false;
+		}
+		Parser::PushBackToken(t);
 		bool stmt = Stmt(in, line);
 		if(!stmt){
 			ParseError(line, "Program syntax error, Stmt is false.");
 			return false;
 		}
 		t = Parser::GetNextToken(in, line);
+		cout << t << "second part of stmt while call in prog" << endl;
 	}
 	t = Parser::GetNextToken(in, line);
 	if(t != PROGRAM){
@@ -143,6 +156,7 @@ bool Decl(istream& in, int& line){
 	}
 	LexItem t;
 	t = Parser::GetNextToken(in, line);
+	cout << t << line << "in decl method" << endl;
 	if(t != DCOLON){
 		ParseError(line, "Decl syntax error, missing DCOLON token.");
 		return false;
@@ -160,7 +174,7 @@ bool Type(istream& in, int& line){
 	t = Parser::GetNextToken(in, line);
 	if(t != INTEGER && t != REAL && t != CHARACTER){
 		ParseError(line, "Type syntax error, missing INTEGER/REAL/CHARACTER token.");
-		cout << t << endl;
+		//cout << t << line << endl;
 		return false;
 	}
 	t = Parser::GetNextToken(in, line);
@@ -200,6 +214,7 @@ bool VarList(istream& in, int& line){
 	}
 	LexItem t;
 	t = Parser::GetNextToken(in, line);
+	cout << t << line << "Varlist method" << endl;
 	if(t == ASSOP){
 		bool expr = Expr(in, line);
 		if(!expr){
@@ -214,11 +229,24 @@ bool VarList(istream& in, int& line){
 			ParseError(line, "VarList syntax error, VarList is false.");
 			return false;
 		}
-		//return true;
+		return true;   /////////////do I need this return statement??
 	}
+	if(t == IDENT){
+		ParseError(line, "VarList syntax error, missing COMMA token.");
+		return false;
+	}
+	
+	else{
+		Parser::PushBackToken(t); /////////////////////////////////////////PLEASE DEAR GOD
+	}
+	
+
 	return true;
 }
 bool Stmt(istream& in, int& line){
+	LexItem t;
+	t = Parser::GetNextToken(in, line);
+	cout << t << line << "stmt method";
 	return true;
 }
 bool SimpleStmt(istream& in, int& line){
@@ -242,6 +270,7 @@ bool Var(istream& in, int& line){
 		ParseError(line, "Var syntax error, missing IDENT token.");
 		return false;
 	}
+	cout << t << line << "Var method" << endl;
 	return true;
 }
 //bool ExprList(istream& in, int& line);
@@ -327,7 +356,7 @@ bool TermExpr(istream& in, int& line){
 bool SFactor(istream& in, int& line){
 	LexItem t;
 	t = Parser::GetNextToken(in, line);
-	if(t == PLUS | t == MINUS){
+	if(t == PLUS || t == MINUS){
 		t = Parser::GetNextToken(in, line);
 	}
 	else{
