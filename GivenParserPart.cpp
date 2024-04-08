@@ -108,14 +108,21 @@ bool Prog(istream& in, int& line){
         ParseError(line, "Program syntax error, missing IDENT token.");
         return false;
     }
-	bool decl = Decl(in, line);
-	if(!decl){
-		ParseError(line, "Program syntax error, Decl is false.");
-		return false;
+	t = Parser::GetNextToken(in, line); 
+	while(t == INTEGER || t == REAL || t == CHARACTER){
+		Parser::PushBackToken(t);
+		cout << t << line << endl; ////////////////////////check here
+		bool decl = Decl(in, line);
+		if(!decl){
+			ParseError(line, "Program syntax error, Decl is false.");
+			return false;
+		}
+		t = Parser::GetNextToken(in, line); /////////////////////maybe this fixes stmt????
+		cout << t << line << endl;
 	}
-	t = Parser::GetNextToken(in, line); /////////////////////maybe this fixes stmt????
-	cout << t << endl;
     while(t != END){
+		Parser::PushBackToken(t);//////////////////////////////check here
+		cout << t << line << endl;
 		bool stmt = Stmt(in, line);
 		if(!stmt){
 			ParseError(line, "Program syntax error, Stmt is false.");
@@ -222,16 +229,14 @@ bool VarList(istream& in, int& line){
 }
 //Stmt ::= AssigStmt | BlockIfStmt | PrintStmt | SimpleIfStmt
 bool Stmt(istream& in, int& line){
-	
 	bool assignstmt = AssignStmt(in, line);
 	bool blockifstmt = BlockIfStmt(in, line);
 	bool printstmt = PrintStmt(in, line);
 	bool simpleifstmt = SimpleIfStmt(in, line);
-	if(!assignstmt && !blockifstmt && !printstmt && !simpleifstmt){
-		ParseError(line, "Stmt syntax error, AssignStmt/BlockIfStmt/PrintStmt/SimpleIfStmt is false.");
+	if(assignstmt || blockifstmt || printstmt || simpleifstmt){
+		ParseError(line, "Stmt syntax error, AssignStmt/BlockIfStmt/PrintStmt/SimpleIfStmt is false!!!!");
 		return false;
 	}
-	
 	return true;
 }
 //SimpleStmt ::= AssignStmt | PrintStmt
